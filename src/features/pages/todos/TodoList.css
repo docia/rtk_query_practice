@@ -1,0 +1,63 @@
+.todoListContainer {
+	width: 40%;
+	height: 100%;
+	border: dashed rgb(80, 73, 73);
+	margin: auto;
+	margin-top: 20px;
+	padding: 0 20px 0 0;
+}
+.inputBlock {
+	display: flex;
+	flex-direction: row;
+	margin-bottom: 50px;
+}
+.input {
+	margin-right: 10px;
+	padding: 5px 5px;
+}
+
+.addButton:hover,
+.listItem:hover {
+	cursor: pointer;
+}
+
+.title {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin-top: 50px;
+}
+
+ul {
+	list-style: disc;
+	padding-left: 50px;
+}
+
+li span {
+	display: inline;
+}
+
+li span:hover {
+	color: rgb(216, 78, 78);
+}
+
+.todo {
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	border: 1px solid rgb(80, 76, 76);
+	padding: 10px 10px;
+	gap: 10px;
+	width: 100%;
+}
+
+.checkbox {
+	margin-right: 10px;
+}
+
+.removeBtn {
+	display: flex;
+	flex-direction: end;
+	justify-content: end;
+}
