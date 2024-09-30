@@ -1,18 +1,12 @@
 import React from "react";
-import { useGetTodosQuery } from "../../api/apiSlice";
-import { TodoListContentProps } from "../../../types/todoTypes";
-
+import { useGetTodosQuery } from "../api/todoApi";
+import { TodoListContentProps } from "../../types/todoTypes";
 
 const TodoListContent: React.FC<TodoListContentProps> = ({
 	updateTodo,
 	deleteTodo,
 }) => {
-	const {
-		data: todos,
-		isLoading,
-		isSuccess,
-		error,
-	} = useGetTodosQuery();
+	const { data: todos, isLoading, isSuccess, error } = useGetTodosQuery();
 
 	if (isLoading) {
 		return <p>Loading...</p>;

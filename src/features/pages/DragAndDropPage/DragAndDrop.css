@@ -1,0 +1,20 @@
+.gridContainer {
+	display: grid;
+	/* grid-template-columns: 1fr 1fr; */
+	gap: 10px;
+    grid-auto-flow: column;
+}
+
+.item {
+    grid-column: 1 / 2;
+}
+
+.tableItem {
+    grid-column: 2 / 3;
+    
+}
+
+
+.dragTitle {
+    margin-bottom: 20px;
+}

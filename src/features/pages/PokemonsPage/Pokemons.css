@@ -1,0 +1,7 @@
+.pokemonBtn:hover {
+    cursor: pointer;
+}
+.pokemonsBlock {
+    display: flex;
+    flex-direction: column;
+}

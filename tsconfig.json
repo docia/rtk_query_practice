@@ -18,8 +18,13 @@
 		"noFallthroughCasesInSwitch": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"strict": true,
+		"strict": true
 	},
-	"include": ["src/**/*.ts", "src/**/*.tsx", "src/features/api/apiSlice.ts", "src/App.js"],
-    "exclude": ["node_modules"],
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.tsx",
+		"src/features/api/todoApi.ts",
+		"src/App.tsx"
+	],
+	"exclude": ["node_modules"]
 }

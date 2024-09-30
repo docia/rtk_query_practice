@@ -4,15 +4,15 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
-import { ApiProvider } from "@reduxjs/toolkit/query/react";
-import { apiSlice } from "./features/api/apiSlice";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
+const root = ReactDOM.createRoot(document.getElementById("root")!);
 root.render(
 	<React.StrictMode>
-		<ApiProvider api={apiSlice}>
+		<Provider store={store}>
 			<App />
-		</ApiProvider>
+		</Provider>
 	</React.StrictMode>
 );
 
