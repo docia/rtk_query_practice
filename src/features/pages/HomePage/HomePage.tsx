@@ -8,6 +8,7 @@ function HomePage() {
 			<Link to="/todolist">To Do List</Link>
 			<Link to="/pokemons">Pokemons</Link>
 			<Link to="/dragandrop">Drag and Drop</Link>
+			<Link to="/counter">Counter</Link>
 		</div>
 	);
 }
