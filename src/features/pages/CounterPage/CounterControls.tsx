@@ -5,7 +5,16 @@ const CounterControls = () => {
 
 	return (
 		<div>
-			<button onClick={decrement}>Decrement</button>
+			<button
+				onClick={decrement}
+				style={{
+					color: "blue",
+					background: "yellow",
+					fontSize: "24px",
+				}}
+			>
+				Decrement
+			</button>
 			<button onClick={increment}>Increment</button>
 		</div>
 	);

@@ -9,7 +9,6 @@ const TodoListContent: React.FC<TodoListContentProps> = ({
 	const { data: todos, isLoading, isSuccess, error } = useGetTodosQuery();
 
 	if (isLoading) {
-		debugger
 		return <p>Loading...</p>;
 	}
 
@@ -33,7 +32,6 @@ const TodoListContent: React.FC<TodoListContentProps> = ({
 	}
 
 	if (isSuccess && todos) {
-		console.log(todos); 
 		return (
 			<div>
 				{todos.map((todo) => (
