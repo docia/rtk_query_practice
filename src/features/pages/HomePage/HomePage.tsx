@@ -9,6 +9,7 @@ function HomePage() {
 			<Link to="/pokemons">Pokemons</Link>
 			<Link to="/dragandrop">Drag and Drop</Link>
 			<Link to="/counter">Counter</Link>
+			<Link to="/zip">ZIP</Link>
 		</div>
 	);
 }
