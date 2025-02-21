@@ -1,127 +1,155 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import JSZip from "jszip";
-import axios from "axios";
 
-type CustomFile = File & {
-	preview: string;
-	formattedSize: string;
-};
+interface CustomFile extends File {
+  preview: string;
+  formattedSize: string;
+}
 
 const ZipImport = () => {
-	const [selectedFiles, setSelectedFiles] = useState<CustomFile[]>([]);
-	const [zippedFile, setZippedFile] = useState<Blob | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<CustomFile[]>([]);
 
-	// Convert Bytes to Readable Format
-	const formatBytes = (bytes: number, decimals = 2) => {
-		if (bytes === 0) return "0 Bytes";
-		const k = 1024;
-		const dm = decimals < 0 ? 0 : decimals;
-		const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-		const i = Math.floor(Math.log(bytes) / Math.log(k));
-		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-	};
+  // Convert Bytes to Readable Format
+  const formatBytes = (bytes: number, decimals = 2): string => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
+  };
 
-	// Handle File Selection
-	const handleAcceptedFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
-		const files = event.target.files ? Array.from(event.target.files) : [];
+  // Handle File Selection
+  const handleAcceptedFiles = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files ? Array.from(event.target.files) : [];
+    console.log(
+      "Selected files:",
+      files.map((f) => ({
+        name: f.name,
+        type: f.type,
+        size: f.size,
+      }))
+    );
 
-		// Convert File[] to CustomFile[]
-		const customFiles: CustomFile[] = files.map((file) => ({
-			...file,
-			preview: URL.createObjectURL(file),
-			formattedSize: formatBytes(file.size),
-		}));
+    // Create CustomFile objects properly
+    const customFiles = files.map((file) => {
+      // Create a new File object with the same properties
+      const customFile = new File([file], file.name, {
+        type: file.type,
+        lastModified: file.lastModified,
+      });
 
-		setSelectedFiles(customFiles);
-	};
+      // Add our custom properties
+      return Object.assign(customFile, {
+        preview: URL.createObjectURL(file),
+        formattedSize: formatBytes(file.size),
+      }) as CustomFile;
+    });
 
-	// const handleAcceptedFiles = async (files) => {
-	// 	files.map((file) =>
-	// 		Object.assign(file, {
-	// 			preview: URL.createObjectURL(file),
-	// 			formattedSize: formatBytes(file.size),
-	// 		})
-	// 	);
-	// 	setSelectedFiles(files);
-	// 	handleZipFiles();
-	// };
+    console.log(
+      "Processed custom files:",
+      customFiles.map((f) => ({
+        name: f.name,
+        type: f.type,
+        size: f.size,
+        preview: f.preview,
+        formattedSize: f.formattedSize,
+      }))
+    );
 
-	// Zip Files and Upload
-	const handleZipFiles = async () => {
-		debugger;
-		if (selectedFiles.length === 0) {
-			alert("No files selected!");
-			return;
-		}
+    setSelectedFiles(customFiles);
+  };
 
-        const zip = new JSZip();
-        
-        
-		selectedFiles.forEach((file, index) => {
-			zip.file(`${index + 1}_${file.name}`, file);
-		});
-		debugger;
-		const zipContent = await zip.generateAsync({ type: "blob" });
+  // Create and Download Zip
+  const handleCreateZip = async () => {
+    if (selectedFiles.length === 0) {
+      alert("No files selected!");
+      return;
+    }
 
-		// Save zip file for downloading
-		setZippedFile(zipContent);
+    console.log(
+      "Starting zip creation with files:",
+      selectedFiles.map((f) => ({
+        name: f.name,
+        type: f.type,
+        size: f.size,
+      }))
+    );
 
-		// Upload ZIP File
-		const formData = new FormData();
-		formData.append("uploadFile", zipContent, "zippedfile.zip");
+    const zip = new JSZip();
 
-		try {
-			await axios.post("/api/file-transfer-upload", formData, {
-				headers: { "Content-Type": "multipart/form-data" },
-			});
-			alert("Upload successful!");
-		} catch (error) {
-			console.error("Upload failed:", error);
-			alert("Upload failed!");
-		}
-	};
+    try {
+      // Add files to zip
+      for (const file of selectedFiles) {
+        console.log("Processing file:", {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        });
 
-	// Download Zipped File
-	const handleDownloadZippedFile = () => {
-		if (!zippedFile) {
-			alert("No ZIP file available for download!");
-			return;
-		}
+        // Read file directly without Blob conversion
+        const arrayBuffer = await file.arrayBuffer();
+        console.log("File read as ArrayBuffer:", {
+          fileName: file.name,
+          bufferSize: arrayBuffer.byteLength,
+        });
 
-		const blob = new Blob([zippedFile], { type: "application/zip" });
-		const link = document.createElement("a");
-		link.href = URL.createObjectURL(blob);
-		link.download = "downloaded_files.zip";
-		link.click();
-	};
+        zip.file(file.name, arrayBuffer);
+      }
 
-	return (
-		<div style={{ padding: "20px" }}>
-			<h2>ZIP File Uploader</h2>
+      // Generate zip file
+      console.log("Generating zip file...");
+      const zipContent = await zip.generateAsync({
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: { level: 9 },
+      });
+      console.log("Zip file generated:", {
+        size: zipContent.size,
+        type: zipContent.type,
+      });
 
-			{/* File Input */}
-			<input multiple type="file" onChange={handleAcceptedFiles} />
+      // Create download link and trigger download
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(zipContent);
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      link.download = `archive-${timestamp}.zip`;
+      document.body.appendChild(link);
+      link.click();
 
-			{/* Selected Files List */}
-			{selectedFiles.length > 0 && (
-				<ul>
-					{selectedFiles.map((file, index) => (
-						<li key={index}>
-							{file.name} - {file.formattedSize}
-						</li>
-					))}
-				</ul>
-			)}
+      // Clean up
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(link.href), 0);
+    } catch (error) {
+      console.error("Error creating zip:", error);
+      alert("Failed to create zip file!");
+    }
+  };
 
-			{/* Buttons */}
-			<button onClick={handleZipFiles} disabled={selectedFiles.length === 0}>
-				Upload as ZIP
-			</button>
-			<button onClick={handleDownloadZippedFile} disabled={!zippedFile}>
-				Download ZIP
-			</button>
-		</div>
-	);
+  return (
+    <div style={{ padding: "20px" }}>
+      <h2>ZIP File Creator</h2>
+
+      {/* File Input */}
+      <input multiple type="file" onChange={handleAcceptedFiles} />
+
+      {/* Selected Files List */}
+      {selectedFiles.length > 0 && (
+        <ul>
+          {selectedFiles.map((file, index) => (
+            <li key={index}>
+              {file.name} - {file.formattedSize}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Create ZIP Button */}
+      <button onClick={handleCreateZip} disabled={selectedFiles.length === 0}>
+        Create and Download ZIP
+      </button>
+    </div>
+  );
 };
 
 export default ZipImport;
